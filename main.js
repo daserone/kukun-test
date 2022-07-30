@@ -1,4 +1,4 @@
-const values = [523, 610, 340, 200, 550, 659];
+const values = [100, 610, 340, 200, 550, 100];
 
 const labels = ["NOW", "2023", "2024", "2025", "2026", "2027"];
 
@@ -20,13 +20,13 @@ const drawChart = (x, y) => {
         label: "5-Year Forecasted Value",
         borderColor: gradient,
         tension: 0.1,
-        radius: 7,
+        radius: 0,
         borderWidth: 5,
         backgroundColor: "white",
       },
     ],
   };
-  const totalDuration = 2000;
+  const totalDuration = 800;
   const delayBetweenPoints = totalDuration / values.length;
   const previousY = (ctx) =>
     ctx.index === 0
@@ -39,7 +39,7 @@ const drawChart = (x, y) => {
       type: "number",
       easing: "easeOutQuad",
       duration: delayBetweenPoints,
-      from: NaN, // the point is initially skipped
+      from: NaN,
       delay(ctx) {
         if (ctx.type !== "data" || ctx.xStarted) {
           return 0;
@@ -67,17 +67,41 @@ const drawChart = (x, y) => {
     data: data,
 
     options: {
-      // animations: {
-      //   x: {
-      //     from: 0,
-      //     duration: 4000,
-      //   },
-      //   y: {
-      //     from: 0,
-      //     duration: 4000,
-      //   },
-      // },
-      animation,
+      animations: {
+        borderColor: {
+          type: "color",
+          ease: "linear",
+          duration: 10000,
+          from: "transparent",
+          to: "blue",
+        },
+        x: {
+          type: "number",
+          easing: "easeOutQuad",
+          duration: delayBetweenPoints,
+          from: NaN,
+          delay(ctx) {
+            if (ctx.type !== "data" || ctx.xStarted) {
+              return 0;
+            }
+            ctx.xStarted = true;
+            return ctx.index * delayBetweenPoints;
+          },
+        },
+        y: {
+          type: "number",
+          easing: "easeOutQuad",
+          duration: delayBetweenPoints,
+          from: previousY,
+          delay(ctx) {
+            if (ctx.type !== "data" || ctx.yStarted) {
+              return 0;
+            }
+            ctx.yStarted = true;
+            return ctx.index * delayBetweenPoints;
+          },
+        },
+      },
       responsive: true,
       scales: {
         y: {
@@ -109,25 +133,71 @@ const drawChart = (x, y) => {
     plugins: [
       {
         id: "customPlugin",
-        afterDraw: (chart, args, options) => {
+        afterDraw: (chart) => {
           var ctx = chart.ctx;
-          var yAxis = chart.scales.y.end;
-          console.log("test", chart.scales.y.end);
-
+          const {
+            chartArea: { top },
+            scales: { x, y },
+          } = chart;
+          let xFirst = 0;
+          let xSecond = 0;
+          let yFirst = 0;
+          let ySecond = 0;
+          if (chart.getDatasetMeta(1).data[0] != undefined) {
+            if (chart.getDatasetMeta(1).data[0].x != undefined) {
+              xFirst = chart.getDatasetMeta(1).data[0].x;
+            }
+          }
+          if (chart.getDatasetMeta(1).data[values.length - 1] != undefined) {
+            if (
+              chart.getDatasetMeta(1).data[values.length - 1].x != undefined
+            ) {
+              xSecond = chart.getDatasetMeta(1).data[values.length - 1].x;
+            }
+          }
+          if (chart.getDatasetMeta(1).data[0] != undefined) {
+            if (chart.getDatasetMeta(1).data[0].y != undefined) {
+              yFirst = chart.getDatasetMeta(1).data[0].y;
+            }
+          }
+          if (chart.getDatasetMeta(1).data[values.length - 1] != undefined) {
+            if (
+              chart.getDatasetMeta(1).data[values.length - 1].y != undefined
+            ) {
+              ySecond = chart.getDatasetMeta(1).data[values.length - 1].y;
+            }
+          }
           ctx.save();
           ctx.font = "18px Arial";
           ctx.fillStyle = "black";
-
-          ctx.fillText("$" + values[0] + "k", 0, 80);
-          ctx.fillText("$" + values[values.length - 1] + "k", 530, 20);
-
-          ctx.restore();
+          ctx.textAlign = "center";
+          if (xFirst != 0 && xSecond != 0) {
+            ctx.fillText("$" + values[0] + "k", xFirst + 10, yFirst - 30);
+            ctx.fillText(
+              "$" + values[values.length - 1] + "k",
+              xSecond - 10,
+              ySecond - 20
+            );
+          }
         },
       },
     ],
   };
 
   const myChart = new Chart(ctx, config);
+  setTimeout(() => {
+    myChart.data.datasets[0].borderColor = "transparent";
+    myChart.data.datasets.push({
+      data: values,
+      label: "5-Year Forecasted Value",
+      borderColor: gradient,
+      tension: 0.1,
+      radius: 7,
+      borderWidth: 5,
+      backgroundColor: "white",
+    });
+    myChart.update("none");
+  }, 1200);
 };
 const changeText = () => {
   const percent = document.getElementById("percent");
