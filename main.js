@@ -1,7 +1,5 @@
-const simulationData = {
-  x: [300, 340, 400, 350, 300, 280],
-  y: ["NOW", "2023", "2024", "2025", "2026", "2027"],
-};
+let simulationData = {};
+
 const drawChart = ({ x, y }) => {
   const ctx = document.getElementById("myChart").getContext("2d");
 
@@ -145,14 +143,8 @@ const drawChart = ({ x, y }) => {
             }
           }
           ctx.save();
-          let f = new FontFace(
-            "poppins",
-            "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
-          );
 
-          f.load().then(() => {
-            ctx.font = "bold 18px poppins";
-          });
+          ctx.font = "bold 18px poppins";
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
           if (xFirst != 0 && xSecond != 0) {
@@ -217,6 +209,22 @@ const changeText = () => {
 
   setTimeout(() => (percent.className = "fade"), 1000);
 };
+const hideLoading = () => {
+  const loaderContainer = document.querySelector(".loader-container");
 
-drawChart(simulationData);
-changeText();
+  loaderContainer.style.display = "none";
+};
+async function getapi(url) {
+  const response = await fetch(url);
+
+  var data = await response.json();
+  if (response) {
+    setTimeout(() => {
+      simulationData = data;
+      changeText();
+      drawChart(data);
+      hideLoading();
+    }, 1000);
+  }
+}
+getapi("./assets/data.json");
