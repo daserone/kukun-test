@@ -1,16 +1,16 @@
-const values = [100, 610, 340, 200, 550, 100];
-
-const labels = ["NOW", "2023", "2024", "2025", "2026", "2027"];
-
-const drawChart = (x, y) => {
+const simulationData = {
+  x: [300, 340, 400, 350, 300, 280],
+  y: ["NOW", "2023", "2024", "2025", "2026", "2027"],
+};
+const drawChart = ({ x, y }) => {
   const ctx = document.getElementById("myChart").getContext("2d");
 
   let gradient = ctx.createLinearGradient(0, 0, 0, 400);
   gradient.addColorStop(0, "#854AF2");
   gradient.addColorStop(1, "#1A92EA");
-  const labels = x;
+  const labels = y;
 
-  const values = y;
+  const values = x;
 
   const data = {
     labels,
@@ -26,7 +26,7 @@ const drawChart = (x, y) => {
       },
     ],
   };
-  const totalDuration = 800;
+  const totalDuration = 1000;
   const delayBetweenPoints = totalDuration / values.length;
   const previousY = (ctx) =>
     ctx.index === 0
@@ -34,34 +34,7 @@ const drawChart = (x, y) => {
       : ctx.chart
           .getDatasetMeta(ctx.datasetIndex)
           .data[ctx.index - 1].getProps(["y"], true).y;
-  const animation = {
-    x: {
-      type: "number",
-      easing: "easeOutQuad",
-      duration: delayBetweenPoints,
-      from: NaN,
-      delay(ctx) {
-        if (ctx.type !== "data" || ctx.xStarted) {
-          return 0;
-        }
-        ctx.xStarted = true;
-        return ctx.index * delayBetweenPoints;
-      },
-    },
-    y: {
-      type: "number",
-      easing: "easeOutQuad",
-      duration: 2000,
-      from: previousY,
-      delay(ctx) {
-        if (ctx.type !== "data" || ctx.yStarted) {
-          return 0;
-        }
-        ctx.yStarted = true;
-        return ctx.index * delayBetweenPoints;
-      },
-    },
-  };
+
   const config = {
     type: "line",
     data: data,
@@ -70,10 +43,10 @@ const drawChart = (x, y) => {
       animations: {
         borderColor: {
           type: "color",
-          ease: "linear",
-          duration: 10000,
+          ease: "easeOutQuad",
+          duration: 12000,
           from: "transparent",
-          to: "blue",
+          to: "#1A92EA",
         },
         x: {
           type: "number",
@@ -110,14 +83,18 @@ const drawChart = (x, y) => {
           },
           grid: {
             display: true,
-            borderDash: [5, 15],
+            borderDash: [5, 5],
           },
         },
         x: {
+          ticks: {
+            font: {
+              size: 18,
+            },
+            color: "black",
+          },
           grid: {
             display: false,
-            drawOnChartArea: true,
-            drawBorder: true,
           },
         },
       },
@@ -168,13 +145,20 @@ const drawChart = (x, y) => {
             }
           }
           ctx.save();
-          ctx.font = "18px Arial";
+          let f = new FontFace(
+            "poppins",
+            "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+          );
+
+          f.load().then(() => {
+            ctx.font = "bold 18px poppins";
+          });
           ctx.fillStyle = "black";
           ctx.textAlign = "center";
           if (xFirst != 0 && xSecond != 0) {
-            ctx.fillText("$" + values[0] + "k", xFirst + 10, yFirst - 30);
+            ctx.fillText("$" + values[0] + "K", xFirst + 10, yFirst - 30);
             ctx.fillText(
-              "$" + values[values.length - 1] + "k",
+              "$" + values[values.length - 1] + "K",
               xSecond - 10,
               ySecond - 20
             );
@@ -199,10 +183,40 @@ const drawChart = (x, y) => {
     myChart.update("none");
   }, 1200);
 };
+
+const percIncrease = (a, b) => {
+  let percent;
+  if (b !== 0) {
+    if (a !== 0) {
+      percent = ((b - a) / a) * 100;
+    } else {
+      percent = b * 100;
+    }
+  } else {
+    percent = -a * 100;
+  }
+  return Math.floor(percent);
+};
 const changeText = () => {
   const percent = document.getElementById("percent");
-  setTimeout(() => (percent.textContent = "29.5"), 1000);
+  const arrow = document.getElementById("arrow");
+  let change = percIncrease(
+    simulationData.x[0],
+    simulationData.x[simulationData.x.length - 1]
+  );
+  setTimeout(
+    () => {
+      percent.textContent = change;
+      if (change < 0) {
+        arrow.className = "arrow-down";
+      }
+    },
+
+    1000
+  );
+
   setTimeout(() => (percent.className = "fade"), 1000);
 };
-drawChart(labels, values);
+
+drawChart(simulationData);
 changeText();

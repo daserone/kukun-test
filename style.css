@@ -4,40 +4,34 @@ body {
   align-items: center;
   height: 100vh;
   font-family: "Poppins", sans-serif;
-  background-color: whitesmoke;
+  background-color: #d1d1d1;
+  background-image: url(./assets/art-background.png);
+  background-attachment: fixed;
+  background-size: cover;
 }
 .chart {
-  margin: 10px;
   height: 400px;
   width: 600px;
   background-color: rgba(255, 255, 255, 0.88);
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 20px 30px 35px 30px;
 }
 
 .chart .title {
-  color: rgb(2, 26, 79);
+  color: rgb(9, 34, 89);
   font-size: 30px;
-}
-
-@keyframes widhtChange {
-  from {
-    width: 200px;
-  }
-  to {
-    width: 250px;
-  }
+  font-weight: bold;
 }
 
 .chart .button {
   padding: 7px 15px;
   background: linear-gradient(45deg, #854af2, #1a92ea);
-  border-radius: 10px;
+  border-radius: 14px;
   color: white;
   display: flex;
   align-items: center;
   height: 50px;
-  width: 250px;
+  width: 230px;
   animation-name: widhtChange;
   animation-duration: 4s;
 }
@@ -51,21 +45,15 @@ body {
   margin-right: 10px;
   font-size: 40px;
   font-weight: bold;
-  animation: myanimation 1.5s;
+  animation: fade 1.5s;
 }
-@keyframes myanimation {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
+
 .chart .button .info {
   width: 70px;
   font-size: 17px;
   text-transform: uppercase;
   line-height: 17px;
+  font-weight: bold;
 }
 .chart .button .arrow-box {
   display: flex;
@@ -83,6 +71,29 @@ body {
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-
-  border-bottom: 8px solid greenyellow;
+  border-bottom: 8px solid rgb(79, 191, 62);
+}
+.arrow-down {
+  margin-right: 4px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 8px solid rgb(193, 30, 30);
+}
+@keyframes widhtChange {
+  from {
+    width: 200px;
+  }
+  to {
+    width: 230px;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
